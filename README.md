@@ -13,9 +13,7 @@ This is a semester project for Advanced Cloud Computing.
 
 | Role | Responsibility |
 |---|---|
-| Person A | System architecture, Lambda integration |
-| **Person B** (this codebase) | Listing S3 objects by prefix, rule-based tiering decisions, executing `copy_object` moves |
-| Person C | Access-pattern data / ML signals |
+| **Daivik** (this codebase) | Listing S3 objects by prefix, rule-based tiering decisions, executing `copy_object` moves |
 
 ## Repo layout
 
