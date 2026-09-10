@@ -1,4 +1,4 @@
-# TierFlow (Cloudtier)
+# TierFlow
 
 An adaptive S3 storage tiering engine. TierFlow watches how S3 objects are
 accessed and moves them between storage classes (`STANDARD`, `STANDARD_IA`,
