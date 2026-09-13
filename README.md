@@ -14,6 +14,8 @@ This is a semester project for Advanced Cloud Computing.
 | Role | Responsibility |
 |---|---|
 | **Daivik** (this codebase) | Listing S3 objects by prefix, rule-based tiering decisions, executing `copy_object` moves |
+| **Irfan** (this codebase) | S3 access longing, lambda function wrapping, athena access frequency logging |
+| **Yamin** (this codebase) | testing of files against real bucket, literature survey, labda function design  |
 
 ## Repo layout
 
