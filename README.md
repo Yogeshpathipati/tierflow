@@ -13,9 +13,10 @@ This is a semester project for Advanced Cloud Computing.
 
 | Role | Responsibility |
 |---|---|
-| **Daivik** (this codebase) | Listing S3 objects by prefix, rule-based tiering decisions, executing `copy_object` moves |
-| **Irfan** (this codebase) | S3 access longing, lambda function wrapping, athena access frequency logging |
-| **Yamin** (this codebase) | testing of files against real bucket, literature survey, labda function design  |
+| **Daivik**  | Listing S3 objects by prefix, rule-based tiering decisions, executing `copy_object` moves |
+| **Irfan**  | S3 access logging, lambda function wrapping, athena access frequency logging |
+| **P. Yogesh**  | Access-pattern data analysis, real bucket testing & validation, literature survey, SDG mapping |
+| **Yamin** | Testing of files against real bucket, literature survey, lambda function design |
 
 ## Repo layout
 
@@ -24,13 +25,17 @@ tierflow/
 ├── src/
 │   ├── list_objects.py          # lists S3 objects under a prefix (paginated)
 │   ├── decide_storage_class.py  # rule-based tiering decision logic
-│   └── simulate_logs.py         # generates simulated access-pattern CSV data
+│   ├── simulate_logs.py         # generates simulated access-pattern CSV data
+│   ├── athena_parser.py         # queries real S3 access logs via AWS Athena
+│   ├── move_objects.py          # executes in-place copy_object tier transitions
+│   └── lambda_function.py       # AWS Lambda handler orchestrating the pipeline
 ├── tests/
 │   ├── test_list_objects.py     # moto-based unit tests (no real AWS calls)
 │   └── conftest.py
 ├── data/
 │   ├── tierflow_simulated_logs.csv   # simulated per-prefix access log
-│   └── sample-files/                 # tiny sample files used for manual S3 testing
+│   ├── sample-files/                 # sample files used for manual S3 testing
+│   └── real bucket testing results/  # query outputs from live Athena/S3 log testing
 ├── scripts/
 │   └── manual_smoke_test.py     # quick manual script against a real bucket (needs live AWS creds)
 └── requirements.txt
@@ -40,17 +45,22 @@ tierflow/
 
 - **`list_objects_by_prefix()`** (`src/list_objects.py`) — paginated
   `list_objects_v2` call, returns key/size/last-modified/storage class/etag
-  per object. Covered by 6 passing moto-based unit tests. Also verified
-  manually against a real bucket (`tierflow-daivik-test`, `ap-south-1`).
+  per object. Storage class is normalized for `STANDARD` objects. Covered
+  by 6 passing moto-based unit tests. Also verified manually against a real
+  bucket (`tierflow-daivik-test`, `ap-south-1`).
 - **`decide_storage_class()`** (`src/decide_storage_class.py`) — 4-tier
   rule cascade (`DEEP_ARCHIVE` → `GLACIER` → `STANDARD_IA` → `STANDARD`)
   based on `last_accessed_days_ago` and `access_count_30d`. Run and
   verified against `data/tierflow_simulated_logs.csv`, including boundary
   cases sitting exactly on the rule thresholds.
-- **`copy_object` tiering** — confirmed working against a real bucket:
-  objects successfully moved to `STANDARD_IA` with the storage class
-  change verified afterward (see `scripts/manual_smoke_test.py` for the
-  pattern).
+- **S3 Server Access Logging & Athena Parser** (`src/athena_parser.py`) —
+  S3 Server Access Logging enabled on `tierflow-daivik-test`, delivering logs to
+  `tierflow-daivik-logs`. Athena SQL parser queries `s3_access_logs` and
+  aggregates `last_accessed_days_ago` and `access_count_30d` for each prefix.
+- **`copy_object` tiering & real bucket validation** — confirmed working
+  against a real bucket: objects successfully moved to `STANDARD_IA` with the
+  storage class change verified afterward (see `scripts/manual_smoke_test.py`
+  and Athena log exports in `data/real bucket testing results/`).
 - **Simulated log generation** (`src/simulate_logs.py`) — produces
   realistic per-prefix access data (hot/warm/cool/cold/frozen/never, plus
   threshold edge cases) so tiering logic can be developed and tested
@@ -58,27 +68,28 @@ tierflow/
 - **AWS setup** — standalone AWS account (a prior org-managed account was
   blocked by a Service Control Policy that overrides IAM permissions), IAM
   user `daivik-tierflow`, CLI configured for `ap-south-1`, bucket
-  `tierflow-daivik-test` live with `raw-data/` and `logs/` test prefixes.
+  `tierflow-daivik-test` live with `raw-data/`, `logs/`, and `project-data/`
+  test prefixes.
+- **Serverless orchestration scaffold** (`src/lambda_function.py`, `src/move_objects.py`) —
+  initial Lambda wrapper and object mover drafted.
 - **Academic write-up** — Problem Identification, Motivation, Literature
   Survey, Objectives, Proposed Architecture, and SDG Mapping sections are
-  complete (not in this repo yet — ping Person B if you need them).
+  complete.
 
 ## Status: what's left
 
-- **Enable S3 Server Access Logging** on `tierflow-daivik-test`, delivering
-  to a separate logs bucket (`tierflow-daivik-logs`).
-- **Real-log parser** — a function to turn raw S3 access log lines into the
-  same per-prefix schema `decide_storage_class()` already consumes
-  (`prefix`, `last_accessed_days_ago`, `access_count_30d`), so we can swap
-  simulated data for the real thing.
-- **Lambda wrapper** — package `list_objects_by_prefix()` +
-  `decide_storage_class()` + the `copy_object` mover into a Lambda function.
-  This needs to be coordinated with Person A's architecture (trigger,
-  schedule, IAM role for the function).
+- **Improve mover robustness** (`src/move_objects.py`) — reuse
+  `list_objects_by_prefix()` for full pagination support beyond 1,000 keys,
+  and parameterize the bucket name instead of hardcoding.
+- **EventBridge trigger & IAM role** — configure an automated schedule
+  (e.g., daily/weekly cron) and deploy the Lambda function with least-privilege
+  execution policies.
+- **Extended test coverage** — add unit tests for `decide_storage_class.py` and
+  `athena_parser.py` to complement existing Moto tests.
 - **Implementation progress documentation** — write up what's built so far
-  for the academic review, tying this code back to the design docs.
+  for the academic review, tying live empirical benchmarks back to design goals.
 
-## Getting started (for teammates)
+## Getting started 
 
 ```bash
 git clone <repo-url>
