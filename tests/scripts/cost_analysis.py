@@ -206,7 +206,6 @@ def generate_charts(tier_counts: dict, output_dir: str):
 def main():
     print("=" * 75)
     print("   TIERFLOW: COST MODEL & PREDICTIVE SAVINGS ANALYSIS")
-    print("   Authored by Person C (P. Yogesh) - Advanced Cloud Computing")
     print("=" * 75)
 
     dataset_path = os.path.join(os.path.dirname(__file__), "..", "data", "tierflow_simulated_logs.csv")
@@ -249,7 +248,7 @@ def main():
     # --------------------------------------------------------------------------
     output_dir = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
     generate_charts(counts, output_dir)
-    print("\n[SUCCESS] Analysis complete. Person D can now import generated charts into the slide deck.")
+    print("\n[SUCCESS] Analysis complete.")
 
 
 if __name__ == "__main__":
