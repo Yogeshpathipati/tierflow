@@ -279,7 +279,7 @@ def main():
     print("  Interpretation: If you retrieve MORE than the break-even amount,")
     print("  the retrieval fees cancel out the storage savings — stay in STANDARD.")
     print("=" * 75)
-    print("\n[SUCCESS] Analysis complete. Person D can now import generated charts into the slide deck.")
+    print("\n[SUCCESS] Analysis complete.")
 
 
 if __name__ == "__main__":
