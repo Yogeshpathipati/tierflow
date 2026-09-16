@@ -23,10 +23,12 @@ Scenarios covered (so decide_storage_class() has real cases to branch on):
 
 import csv
 import random
+import os
 
 random.seed(42)  # reproducible runs
 
-OUTPUT_PATH = "tierflow_simulated_logs.csv"
+# Always write to data/ folder relative to this file, not the cwd
+OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "tierflow_simulated_logs.csv")
 
 # (prefix, category) — prefixes live under your real bucket's raw-data/ and logs/ trees
 PREFIXES = [
