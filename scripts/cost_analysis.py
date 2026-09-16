@@ -23,7 +23,7 @@ import sys
 import csv
 
 # Add src to path so we can import the decision logic
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 try:
     from decide_storage_class import decide_storage_class
 except ImportError:
@@ -208,7 +208,7 @@ def main():
     print("   TIERFLOW: COST MODEL & PREDICTIVE SAVINGS ANALYSIS")
     print("=" * 75)
 
-    dataset_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "tierflow_simulated_logs.csv")
+    dataset_path = os.path.join(os.path.dirname(__file__), "..", "data", "tierflow_simulated_logs.csv")
     records = load_dataset(dataset_path)
 
     if not records:
@@ -246,7 +246,7 @@ def main():
     # --------------------------------------------------------------------------
     # Generate Charts for Slides
     # --------------------------------------------------------------------------
-    output_dir = os.path.join(os.path.dirname(__file__), "..", "..", "data", "charts")
+    output_dir = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
     generate_charts(counts, output_dir)
     print("\n[SUCCESS] Analysis complete.")
 
