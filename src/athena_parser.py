@@ -1,12 +1,24 @@
 import boto3
 import time
+import os
 
-def parse_real_s3_logs(database_name='tierflow_db', output_location='s3://tierflow-daivik-logs/athena-results/'):
+def parse_real_s3_logs(
+    database_name=None,
+    output_location=None
+):
     """
     Queries Athena for real S3 access logs and formats them to match
     the schema expected by decide_storage_class().
+
+    Config is read from environment variables so no values are hardcoded:
+        AWS_REGION            - defaults to ap-south-1
+        ATHENA_DATABASE       - defaults to tierflow_db
+        ATHENA_OUTPUT_LOCATION- defaults to s3://tierflow-daivik-logs/athena-results/
     """
-    athena_client = boto3.client('athena', region_name='ap-south-1')
+    region          = os.environ.get('AWS_REGION', 'ap-south-1')
+    database_name   = database_name   or os.environ.get('ATHENA_DATABASE', 'tierflow_db')
+    output_location = output_location or os.environ.get('ATHENA_OUTPUT_LOCATION', 's3://tierflow-daivik-logs/athena-results/')
+    athena_client   = boto3.client('athena', region_name=region)
     
     # The SQL query that extracts the exact metrics Daivik's logic requires
     query = """

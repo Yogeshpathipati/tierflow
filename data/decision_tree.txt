@@ -1,0 +1,19 @@
+TierFlow — Learned Decision Tree
+============================================================
+Features: last_accessed_days_ago, access_count_30d
+Classes : STANDARD, STANDARD_IA, GLACIER, DEEP_ARCHIVE
+============================================================
+
+|--- last_accessed_days_ago <= 165.00
+|   |--- access_count_30d <= 9.50
+|   |   |--- access_count_30d <= 1.50
+|   |   |   |--- last_accessed_days_ago <= 62.00
+|   |   |   |   |--- class: STANDARD_IA
+|   |   |   |--- last_accessed_days_ago >  62.00
+|   |   |   |   |--- class: GLACIER
+|   |   |--- access_count_30d >  1.50
+|   |   |   |--- class: STANDARD_IA
+|   |--- access_count_30d >  9.50
+|   |   |--- class: STANDARD
+|--- last_accessed_days_ago >  165.00
+|   |--- class: DEEP_ARCHIVE

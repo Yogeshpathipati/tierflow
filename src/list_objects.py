@@ -17,8 +17,10 @@ Design notes:
 
 import boto3
 from botocore.exceptions import ClientError
+import os
 
-REGION = "ap-south-1"
+# Read region from environment — defaults to ap-south-1 (Mumbai)
+REGION = os.environ.get('AWS_REGION', 'ap-south-1')
 
 
 def list_objects_by_prefix(bucket: str, prefix: str, region: str = REGION) -> list[dict]:
