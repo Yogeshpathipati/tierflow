@@ -47,6 +47,14 @@ PRICING = {
     "DEEP_ARCHIVE": 0.00099,  # $0.00099 per GB (~95% cheaper than Standard)
 }
 
+# Retrieval cost per GB (charged when you READ data back from cold tiers)
+RETRIEVAL_PRICING = {
+    "STANDARD":     0.000,   # Free
+    "STANDARD_IA":  0.010,   # $0.01/GB retrieved
+    "GLACIER":      0.010,   # $0.01/GB retrieved
+    "DEEP_ARCHIVE": 0.020,   # $0.02/GB retrieved
+}
+
 # AWS Intelligent-Tiering per-object monthly monitoring fee: $0.0025 per 10,000 objects
 INT_TIERING_MONITORING_PER_OBJ = 0.0025 / 10000.0
 
@@ -248,7 +256,30 @@ def main():
     # --------------------------------------------------------------------------
     output_dir = os.path.join(os.path.dirname(__file__), "..", "data", "charts")
     generate_charts(counts, output_dir)
-    print("\n[SUCCESS] Analysis complete.")
+
+    # --------------------------------------------------------------------------
+    # Break-Even Retrieval Cost Analysis
+    # --------------------------------------------------------------------------
+    print("\n[3] Break-Even Retrieval Cost Analysis (per GB stored @ 10 TB benchmark):")
+    print("-" * 75)
+    print(f"  {'Tier':<15} {'Storage/GB':<14} {'Retrieval/GB':<15} {'Break-even retrieval'}")
+    print(f"  {'-'*14} {'-'*13} {'-'*14} {'-'*25}")
+    for tier in ["STANDARD", "STANDARD_IA", "GLACIER", "DEEP_ARCHIVE"]:
+        store  = PRICING[tier]
+        ret    = RETRIEVAL_PRICING[tier]
+        saving = PRICING["STANDARD"] - store
+        # Break-even: how many GB retrieved per month makes this tier equal to STANDARD cost?
+        if ret > 0:
+            breakeven_gb = saving / ret
+            breakeven_str = f"{breakeven_gb:.1f} GB/month retrieved"
+        else:
+            breakeven_str = "Always cheaper (no retrieval cost)"
+        print(f"  {tier:<15} ${store:<13.5f} ${ret:<14.3f} {breakeven_str}")
+    print("-" * 75)
+    print("  Interpretation: If you retrieve MORE than the break-even amount,")
+    print("  the retrieval fees cancel out the storage savings — stay in STANDARD.")
+    print("=" * 75)
+    print("\n[SUCCESS] Analysis complete. Person D can now import generated charts into the slide deck.")
 
 
 if __name__ == "__main__":
